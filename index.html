@@ -108,7 +108,7 @@ h1 em { display: block; font-style: normal; font-weight: 400; }
   padding: 12px 14px; font-size: 0.82rem; line-height: 1.45; color: var(--ink);
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
-.tip h3 { margin: 0 0 2px; font-family: var(--display); font-size: 1.15rem; font-weight: 600; }
+.tip h3 { margin: 0 0 2px; font-family: var(--title); font-size: 1.3rem; font-weight: 400; }
 .tip .rel { color: var(--muted); margin: 0 0 8px; font-size: 0.76rem; }
 .tip dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0; }
 .tip dt { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding-top: 2px; }
@@ -377,9 +377,9 @@ addDot("Very close", CLOSENESS["Very close"].dot);
 addDot("Slightly close", CLOSENESS["Slightly close"].dot);
 addDot("Not close", CLOSENESS["Not close"].dot);
 addLine("Passed away (faded line)", null, 1.6, true);
-legend.append("span").attr("style", "font-family:var(--display);font-weight:700;color:var(--ink)").text("Bold");
+legend.append("span").attr("style", "font-family:var(--title);color:var(--ink)").text("Bold");
 legend.append("span").text("Talkative / open");
-legend.append("span").attr("style", "font-family:var(--display);font-weight:300;color:var(--ink)").text("Light");
+legend.append("span").attr("style", "font-family:var(--title);color:var(--ink)").text("Light");
 legend.append("span").text("Shy / reserved");
 legend.append("span").attr("style", "color:var(--ink)").text("Aa");
 legend.append("span").text("One typeface per family branch");
