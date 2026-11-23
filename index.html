@@ -227,6 +227,8 @@ const START_ANGLE = -118, END_ANGLE = 152;  // degrees; 0 = right, clockwise. Th
 const LANG_RADIUS = 490;
 const NAME_SIZE = { 1: 11.5, 2: 11.5, 3: 12 };  // name text size per generation
 const MAX_ZOOM = 6;
+const ZOOM_STEP = 1.2;        // how much each +/− click zooms
+const SCROLL_ZOOM_SPEED = 0.0015; // how fast pinch / Cmd-scroll zooms
 
 /* ============================================================
    DATA: one row per person, from the Family Languages sheet
@@ -463,10 +465,11 @@ const zoom = d3.zoom()
   .translateExtent([[bb.x - pad, bb.y - pad], [bb.x + bb.width + pad, bb.y + bb.height + pad]])
   // plain scrolling scrolls the page; pinch or Cmd/Ctrl + scroll zooms
   .filter(evt => evt.type === "wheel" ? (evt.ctrlKey || evt.metaKey) : !evt.button)
+  .wheelDelta(evt => -evt.deltaY * (evt.deltaMode === 1 ? 0.05 : evt.deltaMode ? 1 : SCROLL_ZOOM_SPEED))
   .on("zoom", evt => { root.attr("transform", evt.transform); hideTip(); });
 svg.call(zoom).on("dblclick.zoom", null);
-document.getElementById("zoom-in").addEventListener("click", () => svg.transition().duration(250).call(zoom.scaleBy, 1.6));
-document.getElementById("zoom-out").addEventListener("click", () => svg.transition().duration(250).call(zoom.scaleBy, 1 / 1.6));
+document.getElementById("zoom-in").addEventListener("click", () => svg.transition().duration(250).call(zoom.scaleBy, ZOOM_STEP));
+document.getElementById("zoom-out").addEventListener("click", () => svg.transition().duration(250).call(zoom.scaleBy, 1 / ZOOM_STEP));
 document.getElementById("zoom-reset").addEventListener("click", () => svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity));
 
 function wireSeg(id, key) {
