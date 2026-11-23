@@ -485,9 +485,19 @@ wireSeg("seg-gen", "gen");
 
 // --- a short build-in: lines draw outward generation by generation
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Each line grows out of its language towards the person, sweeping round the circle one generation at a time.
+const DRAW = { genGap: 700, sweep: 1400, lineTime: 1300, dotPop: 450 };  // milliseconds
 if (!reduce) {
-  linkSel.attr("opacity", 0).transition().delay(d => 150 + (d.p.gen - 1) * 260 + Math.random() * 200).duration(700).attr("opacity", linkOpacity);
-  dotSel.attr("opacity", 0).transition().delay(d => 250 + (d.p.gen - 1) * 260).duration(500).attr("opacity", dotOpacity);
+  const sweepDelay = d => 200 + (d.p.gen - 1) * DRAW.genGap + ((d.p.angle - START_ANGLE) / (END_ANGLE - START_ANGLE)) * DRAW.sweep;
+  linkSel.each(function (d) { d.len = this.getTotalLength(); })
+    .attr("stroke-dasharray", d => `${d.len} ${d.len}`)
+    .attr("stroke-dashoffset", d => -d.len)
+    .transition().delay(sweepDelay).duration(DRAW.lineTime).ease(d3.easeCubicOut)
+    .attr("stroke-dashoffset", 0)
+    .on("end", function () { d3.select(this).attr("stroke-dasharray", null).attr("stroke-dashoffset", null); });
+  dotSel.attr("r", 0)
+    .transition().delay(d => sweepDelay(d) + DRAW.lineTime * 0.8).duration(DRAW.dotPop).ease(d3.easeBackOut.overshoot(3))
+    .attr("r", d => (CLOSENESS[d.p.close] || CLOSENESS["Not close"]).dot);
 }
 render();
 </script>
