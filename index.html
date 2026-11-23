@@ -33,11 +33,19 @@
   --te: #9de033;
   --kn: #e3a21a;
   --display: "Newsreader", Georgia, serif;
+  --bg-image-opacity: 0.25;
   --title: "Forum", "Newsreader", Georgia, serif;
   --body: "PT Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
 html, body { background: var(--bg); color: var(--ink); }
+/* background pattern, behind everything (75% transparent) */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: url("assets/background.jpg") center / cover no-repeat;
+  opacity: var(--bg-image-opacity);
+}
+body { position: relative; z-index: 0; }
 body { font-family: var(--body); }
 .page {
   display: grid;
@@ -460,6 +468,9 @@ svg.on("click", () => { state.pin = null; state.focus = null; render(); hideTip(
 const bb = root.node().getBBox();
 const pad = 12;
 svg.attr("viewBox", [bb.x - pad, bb.y - pad, bb.width + pad * 2, bb.height + pad * 2].join(" "));
+// solid disc behind the chart, so the background pattern doesn't show through it
+const discR = Math.max(-bb.x, bb.x + bb.width, -bb.y, bb.y + bb.height) + 24;
+root.insert("circle", ":first-child").attr("r", discR).attr("fill", "var(--bg)").attr("aria-hidden", "true");
 const zoom = d3.zoom()
   .scaleExtent([1, MAX_ZOOM])
   .extent([[bb.x - pad, bb.y - pad], [bb.x + bb.width + pad, bb.y + bb.height + pad]])
