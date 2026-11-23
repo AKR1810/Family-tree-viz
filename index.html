@@ -92,6 +92,15 @@ h1 em { display: block; font-style: italic; font-weight: 500; }
 .lang { cursor: pointer; outline: none; }
 .lang text { transition: opacity 180ms ease; }
 .dim { opacity: 0.08 !important; }
+.zoom { position: absolute; top: 0; right: 0; display: flex; gap: 6px; }
+.zoom button {
+  font: 600 0.9rem var(--body); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--faint); border-radius: 6px; min-width: 36px; height: 36px; padding: 0 10px; cursor: pointer;
+}
+.zoom button:hover { border-color: var(--muted); }
+.zoom button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+#chart { cursor: grab; touch-action: pan-y; }
+#chart:active { cursor: grabbing; }
 .tip {
   position: absolute; pointer-events: none; min-width: 200px; max-width: 260px;
   background: var(--panel); border: 1px solid var(--faint); border-radius: 6px;
@@ -148,12 +157,17 @@ h1 em { display: block; font-style: italic; font-weight: 500; }
         <span class="group-label">How to read it</span>
         <div class="legend" id="legend"></div>
       </div>
-      <p class="hint">Hover a language to see who I speak it with, or click it to keep it highlighted. Hover a name for their details; click it to highlight their whole family branch. Click empty space to clear.</p>
+      <p class="hint">Hover a language to see who I speak it with, or click it to keep it highlighted. Hover a name for their details; click it to highlight their whole family branch. Click empty space to clear. Pinch, or hold Cmd/Ctrl and scroll, to zoom; drag to move around.</p>
     </div>
   </section>
 
   <div class="chart-wrap" id="wrap">
     <svg id="chart" viewBox="-640 -580 1280 1160" role="img" aria-label="Radial chart of family members across three generations, linked to the languages Apurva speaks with each of them"></svg>
+    <div class="zoom" role="group" aria-label="Zoom">
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="zoom-reset">Fit</button>
+    </div>
     <div class="tip" id="tip" hidden></div>
   </div>
 
@@ -211,6 +225,8 @@ const PASSED_AWAY_OPACITY = 0.16; // lines and dots of relatives who have passed
 const RINGS = { 1: 160, 2: 295, 3: 435 };   // radius of each generation
 const START_ANGLE = -118, END_ANGLE = 152;  // degrees; 0 = right, clockwise. The gap on the left holds the languages.
 const LANG_RADIUS = 490;
+const NAME_SIZE = { 1: 11.5, 2: 11.5, 3: 12 };  // name text size per generation
+const MAX_ZOOM = 6;
 
 /* ============================================================
    DATA: one row per person, from the Family Languages sheet
@@ -221,6 +237,7 @@ const PEOPLE = [{"name":"Apurva","gen":3,"side":"Self","house":"Self","langs":[]
    Drawing
    ============================================================ */
 const svg = d3.select("#chart");
+const root = svg.append("g"); // everything that zooms
 const rad = d => (d * Math.PI) / 180;
 const polar = (r, a) => [r * Math.cos(rad(a)), r * Math.sin(rad(a))];
 const displayName = n => n.replace(/\s*\(\d\)\s*$/, "");
@@ -252,7 +269,7 @@ LANGUAGES.forEach((l, i) => { l.angle = langAngles[i]; l.pos = polar(LANG_RADIUS
 
 // --- rings and generation labels
 const defs = svg.append("defs");
-const gRings = svg.append("g");
+const gRings = root.append("g");
 [1, 2, 3].forEach(g => {
   gRings.append("circle").attr("class", "ring").attr("r", RINGS[g]);
   const [x, y] = polar(RINGS[g] - 4, 236);
@@ -273,7 +290,7 @@ const linkPath = ({ p, l }) => {
 };
 const linkOpacity = d => d.p.status === "Passed away" ? PASSED_AWAY_OPACITY : LINE_OPACITY;
 const dotOpacity = d => d.p.status === "Passed away" ? PASSED_AWAY_OPACITY + 0.15 : 1;
-const gLinks = svg.append("g");
+const gLinks = root.append("g");
 const linkSel = gLinks.selectAll("path").data(links).join("path")
   .attr("class", "link")
   .attr("d", linkPath)
@@ -293,7 +310,7 @@ const dotSel = gLinks.selectAll("circle").data(links).join("circle")
 // --- names
 const sideColor = s => s === "Paternal" ? "var(--paternal)" : s === "Maternal" ? "var(--maternal)" : "var(--self)";
 const weightOf = p => p.pers === "Talkative" ? 700 : p.pers === "Reserved" ? 300 : 400;
-const gPeople = svg.append("g");
+const gPeople = root.append("g");
 const personSel = gPeople.selectAll("g").data(PEOPLE).join("g")
   .attr("class", "person")
   .attr("tabindex", 0)
@@ -309,7 +326,7 @@ personSel.append("text")
   .attr("dominant-baseline", "middle")
   .attr("font-family", p => FAMILY_FONTS[p.house] || "var(--body)")
   .attr("font-weight", weightOf)
-  .attr("font-size", p => p.gen === 3 ? 10.5 : 10)
+  .attr("font-size", p => NAME_SIZE[p.gen])
   .attr("fill", p => sideColor(p.side))
   .attr("opacity", p => p.langs.length || p.house === "Self" ? 1 : 0.55)
   .text(p => displayName(p.name));
@@ -319,7 +336,7 @@ personSel.insert("rect", "text")
   .attr("y", -7).attr("width", 124).attr("height", 14).attr("fill", "transparent");
 
 // --- language labels
-const gLangs = svg.append("g");
+const gLangs = root.append("g");
 const langSel = gLangs.selectAll("g").data(LANGUAGES).join("g")
   .attr("class", "lang")
   .attr("tabindex", 0)
@@ -432,6 +449,25 @@ langSel
     state.focus = null; render();
   });
 svg.on("click", () => { state.pin = null; state.focus = null; render(); hideTip(); });
+
+/* ============================================================
+   Fit and zoom
+   ============================================================ */
+// trim the empty space around the drawing so it is as large as possible
+const bb = root.node().getBBox();
+const pad = 12;
+svg.attr("viewBox", [bb.x - pad, bb.y - pad, bb.width + pad * 2, bb.height + pad * 2].join(" "));
+const zoom = d3.zoom()
+  .scaleExtent([1, MAX_ZOOM])
+  .extent([[bb.x - pad, bb.y - pad], [bb.x + bb.width + pad, bb.y + bb.height + pad]])
+  .translateExtent([[bb.x - pad, bb.y - pad], [bb.x + bb.width + pad, bb.y + bb.height + pad]])
+  // plain scrolling scrolls the page; pinch or Cmd/Ctrl + scroll zooms
+  .filter(evt => evt.type === "wheel" ? (evt.ctrlKey || evt.metaKey) : !evt.button)
+  .on("zoom", evt => { root.attr("transform", evt.transform); hideTip(); });
+svg.call(zoom).on("dblclick.zoom", null);
+document.getElementById("zoom-in").addEventListener("click", () => svg.transition().duration(250).call(zoom.scaleBy, 1.6));
+document.getElementById("zoom-out").addEventListener("click", () => svg.transition().duration(250).call(zoom.scaleBy, 1 / 1.6));
+document.getElementById("zoom-reset").addEventListener("click", () => svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity));
 
 function wireSeg(id, key) {
   const buttons = document.querySelectorAll(`#${id} button`);
