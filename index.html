@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{margin:0}body{font-size:14px}</style>
+<title>What's your mother tongue(s)?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:wght@400..700&family=IBM+Plex+Mono:wght@300;400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Space+Mono:wght@400;700&family=EB+Garamond:wght@400..800&family=Crimson+Pro:wght@300..700&family=Overpass+Mono:wght@300..700&family=Oswald:wght@300..700&family=Gelasio:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300..700&family=Comfortaa:wght@300..700&family=Archivo:wght@300..700&family=Ubuntu:wght@300;400;700&family=Fira+Sans:wght@300;400;700&family=Josefin+Sans:wght@300..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@500..700&family=Noto+Sans+Telugu:wght@500..700&family=Noto+Sans+Kannada:wght@500..700&display=swap">
+<style>
+/* Layout: story column on the left, radial family chart on the right; stacks on phones.
+   Single dark look by choice, matching the original poster. */
+:root {
+  color-scheme: dark;
+  --bg: #07051c;
+  --panel: #0d0a2b;
+  --ink: #ece9f7;
+  --muted: #a7a2c4;
+  --faint: #4a4572;
+  --ring: #6f6a94;
+  --maternal: #f7cfe3;
+  --paternal: #cfd4f7;
+  --self: #b9b6cc;
+  /* languages, as on the poster */
+  --en: #f4a582;
+  --hi: #f05bd6;
+  --mr: #7d91e3;
+  --te: #9de033;
+  --kn: #e3a21a;
+  --display: "Fraunces", Georgia, serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--body); }
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding-block: 40px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.story { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.2rem, 3.6vw, 3.4rem); line-height: 0.98; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+h1 em { display: block; font-style: italic; font-weight: 500; }
+.lede { font-size: 0.86rem; font-style: italic; color: var(--muted); margin: 0; line-height: 1.5; }
+.chip-m, .chip-p { font-style: normal; padding: 0 4px; border-radius: 2px; color: var(--bg); }
+.chip-m { background: var(--maternal); }
+.chip-p { background: var(--paternal); }
+.note {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 20px 48px;
+  border-top: 1px solid var(--faint);
+  padding-top: 32px;
+}
+.note p.body { font-size: 1rem; line-height: 1.65; margin: 0; color: var(--ink); max-width: 62ch; }
+.lang-word { font-weight: 600; }
+.controls { display: flex; flex-direction: column; gap: 14px; padding-top: 6px; border-top: 1px solid var(--faint); }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group-label { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button {
+  font: 500 0.82rem var(--body); color: var(--muted); background: transparent;
+  border: 1px solid var(--faint); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+.seg button:focus-visible, .lang:focus-visible, .person:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.legend { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; font-size: 0.8rem; color: var(--muted); }
+.legend svg { display: block; }
+.hint { font-size: 0.78rem; color: var(--muted); margin: 0; }
+.chart-wrap { position: relative; min-width: 0; }
+#chart { width: 100%; height: auto; display: block; overflow: visible; }
+.ring { fill: none; stroke: var(--ring); stroke-width: 0.6; }
+.gen-label { font-family: var(--mono); font-size: 11px; fill: var(--muted); letter-spacing: 0.06em; }
+.link { fill: none; stroke-linecap: round; transition: opacity 180ms ease; }
+.dot { transition: opacity 180ms ease; }
+.person { cursor: pointer; outline: none; }
+.person text { transition: opacity 180ms ease; }
+.lang { cursor: pointer; outline: none; }
+.lang text { transition: opacity 180ms ease; }
+.dim { opacity: 0.08 !important; }
+.tip {
+  position: absolute; pointer-events: none; min-width: 200px; max-width: 260px;
+  background: var(--panel); border: 1px solid var(--faint); border-radius: 6px;
+  padding: 12px 14px; font-size: 0.82rem; line-height: 1.45; color: var(--ink);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+.tip h3 { margin: 0 0 2px; font-family: var(--display); font-size: 1.15rem; font-weight: 600; }
+.tip .rel { color: var(--muted); margin: 0 0 8px; font-size: 0.76rem; }
+.tip dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0; }
+.tip dt { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding-top: 2px; }
+.tip dd { margin: 0; }
+.swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+@media (max-width: 900px) {
+  .page { grid-template-columns: minmax(0, 1fr); }
+  .story { position: static; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .link, .dot, .person text, .lang text { transition: none; }
+}
+</style>
+</head>
+<body>
+
+
+<main class="page">
+  <section class="story" aria-label="About this chart">
+    <h1>What's your <em>mother tongue(s)?</em></h1>
+    <p class="lede">This chart maps out which language I speak with different family members, both <span class="chip-m">maternal</span> and <span class="chip-p">paternal</span>, across three generations.</p>
+    <div class="controls">
+      <div class="group">
+        <span class="group-label" id="lbl-side">Side of the family</span>
+        <div class="seg" role="group" aria-labelledby="lbl-side" id="seg-side">
+          <button type="button" id="side-all" data-v="all" aria-pressed="true">Both</button>
+          <button type="button" id="side-m" data-v="Maternal" aria-pressed="false">Maternal</button>
+          <button type="button" id="side-p" data-v="Paternal" aria-pressed="false">Paternal</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="group-label" id="lbl-gen">Generation</span>
+        <div class="seg" role="group" aria-labelledby="lbl-gen" id="seg-gen">
+          <button type="button" id="gen-all" data-v="all" aria-pressed="true">All</button>
+          <button type="button" id="gen-1" data-v="1" aria-pressed="false">1st</button>
+          <button type="button" id="gen-2" data-v="2" aria-pressed="false">2nd</button>
+          <button type="button" id="gen-3" data-v="3" aria-pressed="false">3rd</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="group-label">How to read it</span>
+        <div class="legend" id="legend"></div>
+      </div>
+      <p class="hint">Hover a language to see who I speak it with, or click it to keep it highlighted. Hover a name for their details; click it to highlight their whole family branch. Click empty space to clear.</p>
+    </div>
+  </section>
+
+  <div class="chart-wrap" id="wrap">
+    <svg id="chart" viewBox="-640 -580 1280 1160" role="img" aria-label="Radial chart of family members across three generations, linked to the languages Apurva speaks with each of them"></svg>
+    <div class="tip" id="tip" hidden></div>
+  </div>
+
+  <section class="note" aria-label="A personal note">
+    <p class="body">Every time someone asks me this question, I find myself staring blankly, unsure how to respond. Language, to me, is a key factor in how we build relationships. To truly speak the same language with someone, with all its nuances, is a privilege.</p>
+    <p class="body">I grew up in a large extended family spread across South India, and to connect with them meaningfully, I was exposed from an early age to several languages: <span class="lang-word" style="color:var(--en)">English</span>, <span class="lang-word" style="color:var(--hi)">Hindi</span>, <span class="lang-word" style="color:var(--mr)">Marathi</span>, <span class="lang-word" style="color:var(--te)">Telugu</span>, <span class="lang-word" style="color:var(--kn)">Kannada</span>; though English has always been my default.</p>
+    <p class="body">This web of relationships carries its own warmth and peculiarities, shaped by sub-nuclear family structures, my closeness to each member, and their personalities, whether <strong>talkative/open</strong> or <span style="font-weight:300;color:var(--muted)">shy/reserved</span>.</p>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+/* ============================================================
+   SETTINGS: edit these to change the look without touching the code below
+   ============================================================ */
+const LANGUAGES = [
+  // name, label as shown, colour token, label font
+  { key: "English", label: "English", color: "var(--en)", font: "'Fraunces', serif", italic: true },
+  { key: "Hindi",   label: "हिन्दी",   color: "var(--hi)", font: "'Noto Serif Devanagari', serif" },
+  { key: "Marathi", label: "मराठी",   color: "var(--mr)", font: "'Noto Serif Devanagari', serif" },
+  { key: "Telugu",  label: "తెలుగు",  color: "var(--te)", font: "'Noto Sans Telugu', sans-serif" },
+  { key: "Kannada", label: "ಕನ್ನಡ",   color: "var(--kn)", font: "'Noto Sans Kannada', sans-serif" }
+];
+// One typeface per family branch (the Household column)
+const FAMILY_FONTS = {
+  "Self": "'Fraunces', serif",
+  "Siblings": "'Fraunces', serif",
+  "Parents": "'Fraunces', serif",
+  "Narayana & Saroja": "'Courier Prime', monospace",
+  "Shashikant & Sheela": "'Space Mono', monospace",
+  "Pandu": "'EB Garamond', serif",
+  "Appa": "'Crimson Pro', serif",
+  "Manda": "'Overpass Mono', monospace",
+  "Meena": "'Oswald', sans-serif",
+  "Raghu": "'Gelasio', serif",
+  "Lallakka": "'Roboto Slab', serif",
+  "Vimbakka": "'IBM Plex Mono', monospace",
+  "Chotu & Mouvi": "'Comfortaa', sans-serif",
+  "Sudha & Krishnamurthy": "'Archivo', sans-serif",
+  "Papya": "'Ubuntu', sans-serif",
+  "Meera": "'Fira Sans', sans-serif",
+  "Mouvi & Arun": "'Josefin Sans', sans-serif"
+};
+// Order of family branches around the circle, clockwise from the top left
+const HOUSE_ORDER = ["Narayana & Saroja", "Parents", "Self", "Siblings", "Shashikant & Sheela", "Pandu", "Appa", "Manda", "Meena", "Raghu", "Lallakka", "Vimbakka", "Chotu & Mouvi", "Sudha & Krishnamurthy", "Papya", "Meera", "Mouvi & Arun"];
+// Closeness = size of the dot beside each name (radius in px)
+const CLOSENESS = {
+  "Very close":     { dot: 7.5 },
+  "Slightly close": { dot: 4 },
+  "Not close":      { dot: 1.6 }
+};
+const LINE_WIDTH = 0.55;
+const LINE_OPACITY = 0.85;        // living relatives
+const PASSED_AWAY_OPACITY = 0.16; // lines and dots of relatives who have passed away
+const RINGS = { 1: 160, 2: 295, 3: 435 };   // radius of each generation
+const START_ANGLE = -118, END_ANGLE = 152;  // degrees; 0 = right, clockwise. The gap on the left holds the languages.
+const LANG_RADIUS = 490;
+
+/* ============================================================
+   DATA: one row per person, from the Family Languages sheet
+   ============================================================ */
+const PEOPLE = [{"name":"Apurva","gen":3,"side":"Self","house":"Self","langs":[],"close":null,"status":null,"pers":null,"id":0},{"name":"Vaibhav","gen":3,"side":"Both","house":"Siblings","langs":["English"],"close":"Very close","status":"Alive","pers":"Reserved","id":1},{"name":"Sreekanth","gen":2,"side":"Paternal","house":"Parents","langs":["English","Telugu"],"close":"Very close","status":"Alive","pers":"Reserved","id":2},{"name":"Shubhangi","gen":2,"side":"Maternal","house":"Parents","langs":["English","Marathi"],"close":"Very close","status":"Alive","pers":"Talkative","id":3},{"name":"Narayana (Tatha)","gen":1,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Very close","status":"Passed away","pers":"Reserved","id":4},{"name":"Saroja (Nama)","gen":1,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Very close","status":"Passed away","pers":"Reserved","id":5},{"name":"Jayanna","gen":2,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Talkative","id":6},{"name":"Jayanna's wife","gen":2,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":7},{"name":"Seenappa","gen":2,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Talkative","id":8},{"name":"Seenappa's wife","gen":2,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Talkative","id":9},{"name":"Jayalakshmi","gen":2,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":10},{"name":"Jayalakshmi's husband","gen":2,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":11},{"name":"Vishnu","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":12},{"name":"Vishnu's wife","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":[],"close":null,"status":null,"pers":"Reserved","id":13},{"name":"Harshu","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":14},{"name":"Harshu's wife","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":[],"close":null,"status":null,"pers":"Reserved","id":15},{"name":"Shilpa","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":16},{"name":"Shilpa's husband","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":17},{"name":"Sagar","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":18},{"name":"Sagar's wife","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":[],"close":null,"status":null,"pers":"Reserved","id":19},{"name":"Akhila","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":20},{"name":"Anusha (1)","gen":3,"side":"Paternal","house":"Narayana & Saroja","langs":["Telugu"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":21},{"name":"Shashikant","gen":1,"side":"Maternal","house":"Shashikant & Sheela","langs":["Marathi"],"close":"Very close","status":"Alive","pers":"Reserved","id":22},{"name":"Sheela","gen":1,"side":"Maternal","house":"Shashikant & Sheela","langs":["Marathi"],"close":"Very close","status":"Passed away","pers":"Talkative","id":23},{"name":"Pandu","gen":1,"side":"Maternal","house":"Pandu","langs":[],"close":null,"status":null,"pers":null,"id":24},{"name":"Pandu's wife","gen":1,"side":"Maternal","house":"Pandu","langs":[],"close":null,"status":null,"pers":null,"id":25},{"name":"Appa","gen":1,"side":"Maternal","house":"Appa","langs":[],"close":null,"status":null,"pers":null,"id":26},{"name":"Appa's wife","gen":1,"side":"Maternal","house":"Appa","langs":[],"close":null,"status":null,"pers":null,"id":27},{"name":"Manda","gen":1,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":28},{"name":"Manda's husband","gen":1,"side":"Maternal","house":"Manda","langs":[],"close":null,"status":null,"pers":null,"id":29},{"name":"Meena","gen":1,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Slightly close","status":"Passed away","pers":"Reserved","id":30},{"name":"Meena's husband","gen":1,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Not close","status":"Passed away","pers":"Reserved","id":31},{"name":"Raghu","gen":1,"side":"Maternal","house":"Raghu","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":32},{"name":"Raghu's 1st wife","gen":1,"side":"Maternal","house":"Raghu","langs":[],"close":null,"status":null,"pers":null,"id":33},{"name":"Raghu's 2nd wife","gen":1,"side":"Maternal","house":"Raghu","langs":["Telugu"],"close":"Not close","status":"Passed away","pers":"Talkative","id":34},{"name":"Lallakka","gen":1,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Slightly close","status":"Passed away","pers":"Reserved","id":35},{"name":"Lallakka's husband","gen":1,"side":"Maternal","house":"Lallakka","langs":[],"close":null,"status":null,"pers":null,"id":36},{"name":"Vimbakka","gen":1,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":37},{"name":"Vimbakka's husband","gen":1,"side":"Maternal","house":"Vimbakka","langs":[],"close":null,"status":null,"pers":null,"id":38},{"name":"Chotu","gen":1,"side":"Maternal","house":"Chotu & Mouvi","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":39},{"name":"Mouvi (1)","gen":1,"side":"Maternal","house":"Chotu & Mouvi","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":40},{"name":"Sudha","gen":1,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Passed away","pers":"Talkative","id":41},{"name":"Krishnamurthy","gen":1,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Passed away","pers":"Reserved","id":42},{"name":"Papya","gen":1,"side":"Maternal","house":"Papya","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":43},{"name":"Papya's wife","gen":1,"side":"Maternal","house":"Papya","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":44},{"name":"Meera","gen":1,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Very close","status":"Alive","pers":"Talkative","id":45},{"name":"Meera's husband","gen":1,"side":"Maternal","house":"Meera","langs":[],"close":null,"status":null,"pers":null,"id":46},{"name":"Mouvi (2)","gen":1,"side":"Maternal","house":"Mouvi & Arun","langs":["Kannada"],"close":"Very close","status":"Alive","pers":"Talkative","id":47},{"name":"Arun","gen":1,"side":"Maternal","house":"Mouvi & Arun","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":48},{"name":"Jaya","gen":2,"side":"Maternal","house":"Pandu","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Reserved","id":49},{"name":"Jaya's husband","gen":2,"side":"Maternal","house":"Pandu","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Reserved","id":50},{"name":"Baghu","gen":2,"side":"Maternal","house":"Pandu","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Reserved","id":51},{"name":"Baghu's husband","gen":2,"side":"Maternal","house":"Pandu","langs":[],"close":null,"status":null,"pers":null,"id":52},{"name":"Sangita","gen":2,"side":"Maternal","house":"Appa","langs":[],"close":null,"status":null,"pers":null,"id":53},{"name":"Sangita's husband","gen":2,"side":"Maternal","house":"Appa","langs":[],"close":null,"status":null,"pers":null,"id":54},{"name":"Raju","gen":2,"side":"Maternal","house":"Appa","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Reserved","id":55},{"name":"Raju's wife","gen":2,"side":"Maternal","house":"Appa","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":56},{"name":"Anand","gen":2,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":57},{"name":"Sunita","gen":2,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":58},{"name":"Achyut","gen":2,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Very close","status":"Alive","pers":"Talkative","id":59},{"name":"Surekha","gen":2,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":60},{"name":"Pappu","gen":2,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":61},{"name":"Girish (1)","gen":2,"side":"Maternal","house":"Manda","langs":[],"close":null,"status":null,"pers":null,"id":62},{"name":"Girish's wife","gen":2,"side":"Maternal","house":"Manda","langs":[],"close":null,"status":null,"pers":null,"id":63},{"name":"Nishikant","gen":2,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":64},{"name":"Kanchan","gen":2,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":65},{"name":"Manju","gen":2,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Not close","status":"Passed away","pers":"Reserved","id":66},{"name":"Gauri (1)","gen":3,"side":"Maternal","house":"Pandu","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Reserved","id":67},{"name":"Gauri's husband","gen":3,"side":"Maternal","house":"Pandu","langs":["Hindi"],"close":"Not close","status":"Alive","pers":"Reserved","id":68},{"name":"Priyanka (1)","gen":3,"side":"Maternal","house":"Pandu","langs":[],"close":null,"status":null,"pers":null,"id":69},{"name":"Priyanka's husband","gen":3,"side":"Maternal","house":"Pandu","langs":[],"close":null,"status":null,"pers":null,"id":70},{"name":"Baghu's daughter","gen":3,"side":"Maternal","house":"Pandu","langs":[],"close":null,"status":null,"pers":null,"id":71},{"name":"Hasini","gen":3,"side":"Maternal","house":"Appa","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":72},{"name":"Aditya","gen":3,"side":"Maternal","house":"Appa","langs":["Telugu"],"close":"Not close","status":"Alive","pers":"Reserved","id":73},{"name":"Pooja","gen":3,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":74},{"name":"Sarthak","gen":3,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":75},{"name":"Gauri (2)","gen":3,"side":"Maternal","house":"Manda","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Talkative","id":76},{"name":"Atharva","gen":3,"side":"Maternal","house":"Manda","langs":[],"close":null,"status":null,"pers":null,"id":77},{"name":"Ajinkya","gen":3,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Reserved","id":78},{"name":"Priyanka (2)","gen":3,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Not close","status":"Alive","pers":"Talkative","id":79},{"name":"Aditi (1)","gen":3,"side":"Maternal","house":"Meena","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":80},{"name":"Manju's son","gen":3,"side":"Maternal","house":"Meena","langs":[],"close":null,"status":null,"pers":null,"id":81},{"name":"Manju's daughter","gen":3,"side":"Maternal","house":"Meena","langs":[],"close":null,"status":null,"pers":null,"id":82},{"name":"Geeta","gen":2,"side":"Maternal","house":"Raghu","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":83},{"name":"Rajesh","gen":2,"side":"Maternal","house":"Raghu","langs":["Hindi"],"close":"Not close","status":"Alive","pers":"Talkative","id":84},{"name":"Gundu","gen":2,"side":"Maternal","house":"Raghu","langs":["English"],"close":"Very close","status":"Alive","pers":"Talkative","id":85},{"name":"Reena","gen":2,"side":"Maternal","house":"Raghu","langs":["Hindi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":86},{"name":"Sandhya","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Talkative","id":87},{"name":"Gurraj","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Passed away","pers":"Reserved","id":88},{"name":"Mouvi (1)","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":89},{"name":"Chotu","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":90},{"name":"Venkatesh","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Passed away","pers":"Talkative","id":91},{"name":"Neeta (1)","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":92},{"name":"Ani","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":93},{"name":"Ranjana","gen":2,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":94},{"name":"Mukunda","gen":2,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":95},{"name":"Neeta (2)","gen":2,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":96},{"name":"Ravi (1)","gen":2,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":97},{"name":"Revathi","gen":2,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":98},{"name":"Roopa","gen":2,"side":"Maternal","house":"Vimbakka","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":99},{"name":"Bandu","gen":2,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":100},{"name":"Bunty","gen":2,"side":"Maternal","house":"Chotu & Mouvi","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":101},{"name":"Ashwini (1)","gen":2,"side":"Maternal","house":"Chotu & Mouvi","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":102},{"name":"Ravi (2)","gen":2,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":103},{"name":"Preeti (1)","gen":2,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":104},{"name":"Girish (2)","gen":2,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":105},{"name":"Shreya (1)","gen":2,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":106},{"name":"Pranesh","gen":2,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":107},{"name":"Purva","gen":2,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":108},{"name":"Pavan","gen":2,"side":"Maternal","house":"Papya","langs":["English"],"close":"Not close","status":"Alive","pers":"Reserved","id":109},{"name":"Pavan's wife","gen":2,"side":"Maternal","house":"Papya","langs":[],"close":null,"status":null,"pers":null,"id":110},{"name":"Pallavi","gen":2,"side":"Maternal","house":"Papya","langs":["English"],"close":"Not close","status":"Alive","pers":"Talkative","id":111},{"name":"Sharan","gen":2,"side":"Maternal","house":"Papya","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Talkative","id":112},{"name":"Preeti (2)","gen":2,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":113},{"name":"Sandeep","gen":2,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":114},{"name":"Munni","gen":2,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Very close","status":"Alive","pers":"Talkative","id":115},{"name":"Milind","gen":2,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Very close","status":"Alive","pers":"Reserved","id":116},{"name":"Nikitha","gen":3,"side":"Maternal","house":"Raghu","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":117},{"name":"Shreyas","gen":3,"side":"Maternal","house":"Raghu","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":118},{"name":"Shashank","gen":3,"side":"Maternal","house":"Raghu","langs":["Hindi"],"close":"Not close","status":"Alive","pers":"Reserved","id":119},{"name":"Sharad","gen":3,"side":"Maternal","house":"Raghu","langs":["Hindi"],"close":"Not close","status":"Alive","pers":"Reserved","id":120},{"name":"Chinki","gen":3,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":121},{"name":"Sujith","gen":3,"side":"Maternal","house":"Lallakka","langs":["English"],"close":"Not close","status":"Alive","pers":"Reserved","id":122},{"name":"Bunty","gen":3,"side":"Maternal","house":"Lallakka","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":123},{"name":"Vibha","gen":3,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":124},{"name":"Vibha's husband","gen":3,"side":"Maternal","house":"Lallakka","langs":[],"close":null,"status":null,"pers":null,"id":125},{"name":"Shreya (2)","gen":3,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":126},{"name":"Shravani","gen":3,"side":"Maternal","house":"Lallakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":127},{"name":"Sameer","gen":3,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":128},{"name":"Sameer's wife","gen":3,"side":"Maternal","house":"Vimbakka","langs":[],"close":null,"status":null,"pers":null,"id":129},{"name":"Aditi (2)","gen":3,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Reserved","id":130},{"name":"Ashwini (2)","gen":3,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":131},{"name":"Pradeep","gen":3,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":132},{"name":"Anusha (2)","gen":3,"side":"Maternal","house":"Vimbakka","langs":["Kannada"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":133},{"name":"Praveen","gen":3,"side":"Maternal","house":"Vimbakka","langs":["English"],"close":"Not close","status":"Alive","pers":"Reserved","id":134},{"name":"Aarav","gen":3,"side":"Maternal","house":"Chotu & Mouvi","langs":["English"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":135},{"name":"Pradnya","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":136},{"name":"Pranjali","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":137},{"name":"Shruti","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":138},{"name":"Shaunak","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":139},{"name":"Avani","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Very close","status":"Alive","pers":"Talkative","id":140},{"name":"Aditi (3)","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":141},{"name":"Arjun","gen":3,"side":"Maternal","house":"Sudha & Krishnamurthy","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":142},{"name":"Shraavi","gen":3,"side":"Maternal","house":"Papya","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Talkative","id":143},{"name":"Palash","gen":3,"side":"Maternal","house":"Papya","langs":["Kannada"],"close":"Not close","status":"Alive","pers":"Talkative","id":144},{"name":"Archit","gen":3,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":145},{"name":"Soham","gen":3,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Reserved","id":146},{"name":"Arya","gen":3,"side":"Maternal","house":"Meera","langs":["Marathi"],"close":"Slightly close","status":"Alive","pers":"Talkative","id":147}];
+
+/* ============================================================
+   Drawing
+   ============================================================ */
+const svg = d3.select("#chart");
+const rad = d => (d * Math.PI) / 180;
+const polar = (r, a) => [r * Math.cos(rad(a)), r * Math.sin(rad(a))];
+const displayName = n => n.replace(/\s*\(\d\)\s*$/, "");
+const langByKey = Object.fromEntries(LANGUAGES.map(l => [l.key, l]));
+const genWord = { 1: "1st generation", 2: "2nd generation", 3: "3rd generation" };
+
+// --- place each family branch in its own wedge
+const houses = d3.group(PEOPLE, d => d.house);
+const order = HOUSE_ORDER.filter(h => houses.has(h)).concat([...houses.keys()].filter(h => !HOUSE_ORDER.includes(h)));
+const widthOf = h => Math.max(...[1, 2, 3].map(g => houses.get(h).filter(p => p.gen === g).length)) + 1.2;
+const totalUnits = d3.sum(order, widthOf);
+const degPerUnit = (END_ANGLE - START_ANGLE) / totalUnits;
+let cursor = START_ANGLE;
+const houseSpan = {};
+order.forEach(h => {
+  const w = widthOf(h) * degPerUnit;
+  houseSpan[h] = [cursor, cursor + w];
+  [1, 2, 3].forEach(g => {
+    const members = houses.get(h).filter(p => p.gen === g);
+    const step = w / (members.length + 1);
+    members.forEach((p, i) => { p.angle = cursor + step * (i + 1); });
+  });
+  cursor += w;
+});
+
+// --- language anchors on the left
+const langAngles = d3.range(LANGUAGES.length).map(i => 226 - i * ((226 - 166) / (LANGUAGES.length - 1)));
+LANGUAGES.forEach((l, i) => { l.angle = langAngles[i]; l.pos = polar(LANG_RADIUS, l.angle); });
+
+// --- rings and generation labels
+const defs = svg.append("defs");
+const gRings = svg.append("g");
+[1, 2, 3].forEach(g => {
+  gRings.append("circle").attr("class", "ring").attr("r", RINGS[g]);
+  const [x, y] = polar(RINGS[g] - 4, 236);
+  gRings.append("text").attr("class", "gen-label").attr("text-anchor", "end")
+    .attr("transform", `translate(${x},${y}) rotate(${236 - 180})`)
+    .text(["", "1st gen", "2nd gen", "3rd gen"][g]);
+});
+
+// --- links
+const links = [];
+PEOPLE.forEach(p => p.langs.forEach(k => { if (langByKey[k]) links.push({ p, l: langByKey[k] }); }));
+const linkPath = ({ p, l }) => {
+  const [x0, y0] = polar(RINGS[p.gen], p.angle);
+  const [x1, y1] = l.pos;
+  const [c0x, c0y] = polar(RINGS[p.gen] * 0.55, p.angle);
+  const [c1x, c1y] = polar(LANG_RADIUS * 0.62, l.angle);
+  return `M${x0},${y0} C${c0x},${c0y} ${c1x},${c1y} ${x1},${y1}`;
+};
+const linkOpacity = d => d.p.status === "Passed away" ? PASSED_AWAY_OPACITY : LINE_OPACITY;
+const dotOpacity = d => d.p.status === "Passed away" ? PASSED_AWAY_OPACITY + 0.15 : 1;
+const gLinks = svg.append("g");
+const linkSel = gLinks.selectAll("path").data(links).join("path")
+  .attr("class", "link")
+  .attr("d", linkPath)
+  .attr("stroke-width", LINE_WIDTH)
+  .attr("stroke", d => d.l.color)
+  .attr("opacity", d => linkOpacity(d));
+
+// --- dots where each line meets its person
+const dotSel = gLinks.selectAll("circle").data(links).join("circle")
+  .attr("class", "dot")
+  .attr("r", d => (CLOSENESS[d.p.close] || CLOSENESS["Not close"]).dot)
+  .attr("cx", d => polar(RINGS[d.p.gen], d.p.angle)[0])
+  .attr("cy", d => polar(RINGS[d.p.gen], d.p.angle)[1])
+  .attr("fill", d => d.l.color)
+  .attr("opacity", dotOpacity);
+
+// --- names
+const sideColor = s => s === "Paternal" ? "var(--paternal)" : s === "Maternal" ? "var(--maternal)" : "var(--self)";
+const weightOf = p => p.pers === "Talkative" ? 700 : p.pers === "Reserved" ? 300 : 400;
+const gPeople = svg.append("g");
+const personSel = gPeople.selectAll("g").data(PEOPLE).join("g")
+  .attr("class", "person")
+  .attr("tabindex", 0)
+  .attr("role", "button")
+  .attr("aria-label", p => `${displayName(p.name)}, ${genWord[p.gen]}${p.langs.length ? ", speaks " + p.langs.join(" and ") + " with me" : ""}`)
+  .attr("transform", p => {
+    const a = p.angle, flip = a > 90 && a < 270 || a < -90;
+    const [x, y] = polar(RINGS[p.gen] + 7, a);
+    return `translate(${x},${y}) rotate(${flip ? a + 180 : a})`;
+  });
+personSel.append("text")
+  .attr("text-anchor", p => (p.angle > 90 && p.angle < 270 || p.angle < -90) ? "end" : "start")
+  .attr("dominant-baseline", "middle")
+  .attr("font-family", p => FAMILY_FONTS[p.house] || "var(--body)")
+  .attr("font-weight", weightOf)
+  .attr("font-size", p => p.gen === 3 ? 10.5 : 10)
+  .attr("fill", p => sideColor(p.side))
+  .attr("opacity", p => p.langs.length || p.house === "Self" ? 1 : 0.55)
+  .text(p => displayName(p.name));
+// a wider invisible hit area for each name
+personSel.insert("rect", "text")
+  .attr("x", p => (p.angle > 90 && p.angle < 270 || p.angle < -90) ? -120 : -4)
+  .attr("y", -7).attr("width", 124).attr("height", 14).attr("fill", "transparent");
+
+// --- language labels
+const gLangs = svg.append("g");
+const langSel = gLangs.selectAll("g").data(LANGUAGES).join("g")
+  .attr("class", "lang")
+  .attr("tabindex", 0)
+  .attr("role", "button")
+  .attr("aria-label", l => `${l.key}: highlight who I speak it with`)
+  .attr("transform", l => { const [x, y] = polar(LANG_RADIUS + 14, l.angle); return `translate(${x},${y})`; });
+langSel.append("text")
+  .attr("text-anchor", "end").attr("dominant-baseline", "middle")
+  .attr("font-family", l => l.font).attr("font-style", l => l.italic ? "italic" : null)
+  .attr("font-size", 26).attr("font-weight", 600)
+  .attr("fill", l => l.color)
+  .text(l => l.label);
+langSel.append("circle").attr("r", 4).attr("cx", 8).attr("fill", l => l.color);
+
+
+/* ============================================================
+   Legend
+   ============================================================ */
+const legend = d3.select("#legend");
+const addLine = (label, dash, width, fade) => {
+  const s = legend.append("svg").attr("width", 54).attr("height", 14).attr("aria-hidden", "true");
+  s.append("line").attr("x1", 2).attr("x2", 44).attr("y1", 7).attr("y2", 7)
+    .attr("stroke", "var(--ink)").attr("stroke-width", LINE_WIDTH * 1.6)
+    .attr("opacity", fade ? PASSED_AWAY_OPACITY + 0.1 : LINE_OPACITY);
+  s.append("circle").attr("cx", 46).attr("cy", 7).attr("r", 3).attr("fill", "var(--ink)").attr("opacity", fade ? PASSED_AWAY_OPACITY + 0.15 : 1);
+  legend.append("span").text(label);
+};
+const addDot = (label, r) => {
+  const s = legend.append("svg").attr("width", 54).attr("height", 14).attr("aria-hidden", "true");
+  s.append("line").attr("x1", 2).attr("x2", 44).attr("y1", 7).attr("y2", 7).attr("stroke", "var(--muted)").attr("stroke-width", LINE_WIDTH);
+  s.append("circle").attr("cx", 46).attr("cy", 7).attr("r", r).attr("fill", "var(--ink)");
+  legend.append("span").text(label);
+};
+addDot("Very close", CLOSENESS["Very close"].dot);
+addDot("Slightly close", CLOSENESS["Slightly close"].dot);
+addDot("Not close", CLOSENESS["Not close"].dot);
+addLine("Passed away (faded line)", null, 1.6, true);
+legend.append("span").attr("style", "font-family:var(--display);font-weight:700;color:var(--ink)").text("Bold");
+legend.append("span").text("Talkative / open");
+legend.append("span").attr("style", "font-family:var(--display);font-weight:300;color:var(--ink)").text("Light");
+legend.append("span").text("Shy / reserved");
+legend.append("span").attr("style", "color:var(--ink)").text("Aa");
+legend.append("span").text("One typeface per family branch");
+
+/* ============================================================
+   Interaction
+   ============================================================ */
+// focus = what the pointer is on right now; pin = what was clicked (a family branch or a language)
+const state = { side: "all", gen: "all", focus: null, pin: null };
+const passesFilter = p => (state.side === "all" || p.side === state.side || p.side === "Both" || p.side === "Self") && (state.gen === "all" || String(p.gen) === state.gen);
+
+function render() {
+  const f = state.focus || state.pin;
+  const matches = p => !f || (f.type === "lang" ? p.langs.includes(f.v.key) : f.type === "house" ? p.house === f.v : p === f.v);
+  const linkOn = d => passesFilter(d.p) && (!f || (f.type === "lang" ? d.l === f.v : matches(d.p)));
+  const personOn = p => passesFilter(p) && matches(p);
+  linkSel.classed("dim", d => !linkOn(d));
+  dotSel.classed("dim", d => !linkOn(d));
+  personSel.select("text").classed("dim", p => !personOn(p));
+  const langsInFocus = f && f.type !== "lang" ? new Set(PEOPLE.filter(matches).flatMap(p => p.langs)) : null;
+  langSel.select("text").classed("dim", l => f ? (f.type === "lang" ? l !== f.v : !langsInFocus.has(l.key)) : false);
+}
+
+const tip = document.getElementById("tip");
+const wrap = document.getElementById("wrap");
+function showTip(p, evt) {
+  const langs = p.langs.length
+    ? p.langs.map(k => `<span class="swatch" style="background:${langByKey[k].color}"></span>${k}`).join("<br>")
+    : "No shared language shown";
+  const family = ["Self", "Siblings", "Parents"].includes(p.house) ? p.house : `${p.house}'s family`;
+  tip.innerHTML = `<h3></h3><p class="rel"></p><dl>
+    <dt>Speaks</dt><dd>${langs}</dd>
+    ${p.close ? `<dt>Close</dt><dd>${p.close}</dd>` : ""}
+    ${p.status ? `<dt>Status</dt><dd>${p.status}</dd>` : ""}
+    ${p.pers ? `<dt>Nature</dt><dd>${p.pers === "Talkative" ? "Talkative / open" : "Shy / reserved"}</dd>` : ""}
+  </dl>`;
+  tip.querySelector("h3").textContent = displayName(p.name);
+  tip.querySelector(".rel").textContent = `${genWord[p.gen]} · ${p.side === "Both" || p.side === "Self" ? "" : p.side + " · "}${family}`;
+  tip.hidden = false;
+  const box = wrap.getBoundingClientRect();
+  let x, y;
+  if (evt && evt.clientX) { x = evt.clientX - box.left + 14; y = evt.clientY - box.top + 14; }
+  else { const r = evt.target.getBoundingClientRect(); x = r.right - box.left + 8; y = r.top - box.top; }
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  x = Math.min(Math.max(4, x), box.width - tw - 4);
+  y = Math.min(Math.max(4, y), box.height - th - 4);
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.hidden = true; }
+
+personSel
+  .on("mouseenter focus", function (evt, p) { state.focus = { type: "person", v: p }; render(); showTip(p, evt); })
+  .on("mousemove", (evt, p) => showTip(p, evt))
+  .on("mouseleave blur", () => { state.focus = null; render(); hideTip(); })
+  // click a name: highlight their whole family branch (click again, or on empty space, to clear)
+  .on("click keydown", function (evt, p) {
+    if (evt.type === "keydown" && evt.key !== "Enter" && evt.key !== " ") return;
+    evt.preventDefault(); evt.stopPropagation();
+    const same = state.pin && state.pin.type === "house" && state.pin.v === p.house;
+    state.pin = same ? null : { type: "house", v: p.house };
+    state.focus = null; render(); showTip(p, evt);
+  });
+langSel
+  .on("mouseenter focus", (evt, l) => { state.focus = { type: "lang", v: l }; render(); })
+  .on("mouseleave blur", () => { state.focus = null; render(); })
+  .on("click keydown", (evt, l) => {
+    if (evt.type === "keydown" && evt.key !== "Enter" && evt.key !== " ") return;
+    evt.preventDefault(); evt.stopPropagation();
+    state.pin = state.pin && state.pin.v === l ? null : { type: "lang", v: l };
+    state.focus = null; render();
+  });
+svg.on("click", () => { state.pin = null; state.focus = null; render(); hideTip(); });
+
+function wireSeg(id, key) {
+  const buttons = document.querySelectorAll(`#${id} button`);
+  buttons.forEach(b => b.addEventListener("click", () => {
+    buttons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    state[key] = b.dataset.v; render();
+  }));
+}
+wireSeg("seg-side", "side");
+wireSeg("seg-gen", "gen");
+
+// --- a short build-in: lines draw outward generation by generation
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (!reduce) {
+  linkSel.attr("opacity", 0).transition().delay(d => 150 + (d.p.gen - 1) * 260 + Math.random() * 200).duration(700).attr("opacity", linkOpacity);
+  dotSel.attr("opacity", 0).transition().delay(d => 250 + (d.p.gen - 1) * 260).duration(500).attr("opacity", dotOpacity);
+}
+render();
+</script>
+
+</body>
+</html>
