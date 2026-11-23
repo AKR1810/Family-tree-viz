@@ -8,7 +8,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:wght@400..700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:wght@400..700&family=Forum&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Space+Mono:wght@400;700&family=EB+Garamond:wght@400..800&family=Crimson+Pro:wght@300..700&family=Overpass+Mono:wght@300..700&family=Oswald:wght@300..700&family=Gelasio:wght@400..700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300..700&family=Comfortaa:wght@300..700&family=Archivo:wght@300..700&family=Ubuntu:wght@300;400;700&family=Fira+Sans:wght@300;400;700&family=Josefin+Sans:wght@300..700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Anek+Devanagari:wght@400&family=Anek+Telugu:wght@400&family=Anek+Kannada:wght@400&display=swap">
@@ -33,6 +33,7 @@
   --te: #9de033;
   --kn: #e3a21a;
   --display: "Newsreader", Georgia, serif;
+  --title: "Forum", "Newsreader", Georgia, serif;
   --body: "PT Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
@@ -51,8 +52,8 @@ body { font-family: var(--body); }
   padding-right: max(100px, env(safe-area-inset-right, 0px));
 }
 .story { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.2rem, 3.6vw, 3.4rem); line-height: 0.98; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
-h1 em { display: block; font-style: italic; font-weight: 500; }
+h1 { font-family: var(--title); font-weight: 400; font-size: clamp(2.4rem, 3.9vw, 3.7rem); line-height: 1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h1 em { display: block; font-style: normal; font-weight: 400; }
 .lede { font-size: 0.86rem; font-style: italic; color: var(--muted); margin: 0; line-height: 1.5; }
 .chip-m, .chip-p { font-style: normal; padding: 0 4px; border-radius: 2px; color: var(--bg); }
 .chip-m { background: var(--maternal); }
